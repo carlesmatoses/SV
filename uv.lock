@@ -6,12 +6,6 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
-[manifest]
-members = [
-    "proj1",
-    "sv",
-]
-
 [[package]]
 name = "altair"
 version = "5.5.0"
@@ -973,11 +967,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/23/e8/21db9c9987b0e7288
 wheels = [
     { url = "https://files.pythonhosted.org/packages/40/4b/2028861e724d3bd36227adfa20d3fd24c3fc6d52032f4a93c133be5d17ce/platformdirs-4.4.0-py3-none-any.whl", hash = "sha256:abd01743f24e5287cd7a5db3752faf1a2d65353f38ec26d98e25a6db65958c85", size = 18654, upload-time = "2025-08-26T14:32:02.735Z" },
 ]
-
-[[package]]
-name = "proj1"
-version = "0.1.0"
-source = { virtual = "proj1" }
 
 [[package]]
 name = "prometheus-client"
