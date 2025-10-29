@@ -12,4 +12,5 @@ dependencies = [
     "pydytuesday>=0.1.2",
     "toml>=0.10.2",
     "pycountry>=24.6.1",
+    "streamlit>=1.50.0",
 ]
