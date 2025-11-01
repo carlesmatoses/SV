@@ -1,0 +1,35 @@
+22. [iVR-GS: Inverse volume rendering for explorable visualization via editable 3D Gaussian splatting (IEEE Vis25)](https://ieeexplore.ieee.org/abstract/document/10989525/?casa_token=LaEpTvQKfrUAAAAA:pZ-kTEVQ2K3FDXXFNP59Xi8jTEV_zPGdj6x589nBGsNO1XE_kmxqjasooyvtePtMB1xKL0XaFA)]
+
+17. [Prompt Lenses: Improving the Magic of Lenses (for Text Analysis) (Eurovis)](https://diglib.eg.org/items/f1d318d1-134d-42d7-9a4c-189ef8716fd3)
+
+12. [HUMAP: Hierarchical Uniform Manifold Approximation and Projection  (Eurovis)](https://arxiv.org/abs/2106.07718)
+
+9. [PixelatedScatter: Arbitrary-level Visual Abstraction for Large-scale Multiclass Scatterplots (IEEVis25)](https://cic.tju.edu.cn/faculty/zhangjiawan/Jiawan_Zhang_files/paper/guoziheng2025.pdf)
+
+
+
+
+
+1. [Gridded Visualization of Statistical Trees for High-Dimensional Multipartite Data in Systems Genetics (EuroVis25) ](https://onlinelibrary.wiley.com/doi/10.1111/cgf.70113?af=R)
+
+4. [A General Framework for Comparing Embedding Visualizations Across Class-Label Hierarchies (IEEEVis24)](https://ieeevis.org/year/2024/program/paper_v-full-1489.html)
+
+6. [Cell2Cell: Explorative Cell Interaction Analysis in Multi-Volumetric Tissue Data(IEEEVis24)](https://ieeevis.org/year/2024/program/paper_v-full-1615.html)
+
+7. [Active Gaze Labeling: Visualization for Trust Building(IEEEVis24)](https://ieeevis.org/year/2024/program/paper_v-tvcg-20243392476.html)
+
+
+10. [EventBox: A Novel Visual Encoding for Interactive Analysis of Temporal and Multivariate Attributes in Event Sequences (Eurovis)](https://arxiv.org/abs/2507.14685)
+
+
+13. [IntelliCircos: A Data-driven and AI-powered Authoring Tool for Circos Plots  (Eurovis)](https://diglib.eg.org/items/20b4a8c0-0583-4627-b574-523d62460cc0)
+
+
+18. [Modeling and Measuring the Chart Communication Recall Process (Eurovis)](https://diglib.eg.org/items/a9e24f34-e82d-4e7f-8406-e54cebed466e)
+
+19. [Accessible Text Descriptions for UpSet Plots (Eurovis)](https://diglib.eg.org/items/93eb1564-8758-4bff-a18d-bcd336dbc9d1)
+
+20. [Considerations for Visualizing Comparison (IEEE TVCG)](https://ieeexplore.ieee.org/abstract/document/8017615)
+
+21. [Classes are not Clusters: Improving Label-based Evaluation of Dimensionality Reduction IEEE Vis 23](https://arxiv.org/abs/2308.00278)
+
