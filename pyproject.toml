@@ -11,3 +11,8 @@ dependencies = [
     "pandas>=2.3.2",
     "vega-datasets>=0.9.0",
 ]
+
+[tool.uv.workspace]
+members = [
+    "proj2",
+]
