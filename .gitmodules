@@ -1,0 +1,9 @@
+[submodule "proj3/proj2/medviz"]
+	path = proj3/proj2/medviz
+	url = https://github.com/MIRI-SV/medviz-project-carlesmatoses
+[submodule "proj3/medviz"]
+	path = proj3/medviz
+	url = https://github.com/MIRI-SV/medviz-project-carlesmatoses
+[submodule "presentació/iVR-GS"]
+	path = presentació/iVR-GS
+	url = https://github.com/TouKaienn/iVR-GS.git
