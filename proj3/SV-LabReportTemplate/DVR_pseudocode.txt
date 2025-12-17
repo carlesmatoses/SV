@@ -1,0 +1,29 @@
+vec3 camera;
+vec3 ray_o = camera;
+vec3 ray_d = normalize(frag - ray_o);
+vec3     d = ray_d * step_size(ray_d);
+
+vec3 p_in, p_out = intersect_box(ray_o, ray_d);
+p_in += jitter;
+
+vec3  C = vec3(0.0);
+float A = 0.0;
+while rayMarching:
+    vec3 p = p_in + i*d;
+    // Beer-Lambert
+    float alpha = sample_opacity(p, d); 
+    if alpha < threshold: continue;
+
+    vec3 normal  = -gradient(p, d);
+    vec3 f_phong = phong(p,normal,l,camera,d);
+    float tr = 1.0 - acc_a(p,l,step_size(l-p));
+    f_color = f_phong * tr;
+    
+    A += (1.0-A) * alpha;
+    C += (1.0-A) * alpha * f_color;
+
+    if (A >= 0.95) break;
+    i++
+
+C = pow(C, vec3(1.0/2.2));
+frag_color = vec4(C,1.0);
