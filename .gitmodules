@@ -1,3 +1,6 @@
+[submodule "proj3/medviz-project-carlesmatoses"]
+	path = proj3/medviz-project-carlesmatoses
+	url = https://github.com/MIRI-SV/medviz-project-carlesmatoses
 [submodule "proj3/proj2/medviz"]
 	path = proj3/proj2/medviz
 	url = https://github.com/MIRI-SV/medviz-project-carlesmatoses
