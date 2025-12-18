@@ -226,6 +226,41 @@ Additional problems to normal calculations: \textbf{If using  density, we need t
 % - Fresnel mathematical model
 % - Implementation details
 % - show render results on two datasets
+Using the Fresnel effect, we can highlight the silhouette of dense parts of the volume. The classical Schlick approximation is
+
+\begin{equation}
+F(\theta) = F_0 + (1 - F_0)(1 - \cos\theta)^u
+\end{equation}
+
+where $F_0$ is the base reflectance at normal incidence, $\theta$ is the angle between the view direction and the surface normal and $u$ controls the rim sharpness. In our implementation we drop $F_0$ (set to 0) and use a simplified rim term driven by the view-normal cosine:
+
+\begin{equation}
+	ext{rim} = \bigl(1 - |\mathbf{v} \cdot \mathbf{n}|\bigr)^{p}, \qquad p = 6.0
+\end{equation}
+
+To keep the effect only on semi-opaque regions we gate it with the accumulated opacity using a smoothstep mask: $w = \text{smoothstep}(0.3,\,0.7,\,\alpha)\,\text{rim}$. This emphasizes edges (grazing angles) while avoiding over-brightening fully transparent or fully opaque areas \ref{fig:fresnel-function}. Figure~\ref{fig:highlightDensity} shows the effect, and Fig.~\ref{fig:smooth-function} illustrates the masking window.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{Figures/highlightDense.png}
+    \caption{Silhouette highlighting using the Fresnel effect to emphasize dense regions of the volume.}
+    \label{fig:highlightDensity}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{Figures/fresnelFunction2.png}
+    \includegraphics[width=\columnwidth]{Figures/fresnelFunction.png}
+    \caption{Fresnel function showing the relationship between viewing angle and edge intensity.}
+    \label{fig:fresnel-function}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\columnwidth]{Figures/smoothfunction.png}
+    \caption{Smoothstep function used to limit the Fresnel effect to specific opacity ranges.}
+    \label{fig:smooth-function}
+\end{figure}
 
 \section{Performance}
 % I will talk about how gpus create warps. each warp can compute 32 fragments in parallel. a gpu like gtx3080 has around 8704 cores. so 8704/32 = 272 warps can be computed in parallel. An image has 1920*1080 = 2073600 pixels. so 2073600/272 = 7617 warps are needed to compute the whole image. each warp takes multiple cycles to compute the whole raymarching. The importance of early ray termination and empty space skipping is to free warps as soon as possible to compute more warps in the same time. If a warp takes too long, the gpu will be underutilized.
