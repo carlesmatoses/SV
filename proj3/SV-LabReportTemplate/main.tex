@@ -128,13 +128,13 @@ We start by computing the ray direction from the camera position to the fragment
 The ray-box intersection is \textbf{computed using the slab method \texttt{intersect\_box(origin, direction)}}. For each axis, we compute the minimum and maximum intersection distances $t_{a}^{\min}$ and $t_{a}^{\max}$ using the parametric equation of the ray. Then , we compute $t_{1,a}$ and $t_{2,a}$ as the minimum and maximum of $t_{a}^{\min}$ and $t_{a}^{\max}$. Finally, we compute the near and far intersection distances $t_{\text{near}}$ and $t_{\text{far}}$ as the maximum of $t_{1,a}$ and the minimum of $t_{2,a}$ respectively. If $t_{\text{near}}$ is greater than $t_{\text{far}}$, there is no intersection. 
 
 \subsection{Sampling Step}
-For the sampling step, we use \texttt{step\_size(vec3 ray\_direction, vec3 dimensions)} that calculates the step size based on the segment we are traversing. The volume is not required to have same voxel size in all axis, we dinamically \textbf{calculate the step size for each ray individually based on the ray direction and the volume dimensions}. This method is meant to optimize ray marching to the minimum required steps at any view direction. We use the Nyquist-Shannon theorem to avoid aliasing, so we set the step size to half of the minimum distance between voxel centers along the ray direction. This is not done in the function for reutilization purposes.
+For the sampling step, we use \texttt{step\_size(vec3 ray\_direction, vec3 dimensions)} that calculates the step size based on the segment we are traversing. The volume is not required to have same voxel size in all axis, we dinamically \textbf{calculate the step size for each ray individually based on the ray direction and the volume dimensions}. This method is meant to optimize ray marching to the minimum required steps at any view direction. We use the \textbf{Nyquist-Shannon \cite{5055024} theorem to avoid aliasing}, so we set the step size to half of the minimum distance between voxel centers along the ray direction. This is not done in the function for reutilization purposes.
 
 \subsection{Transfer Function}
 The \textbf{transfer function} \texttt{transfer\_function\_sigma(float density, float step\_size)} maps the density value to opacity. Color will be implemented in the lighting function. The TF \textbf{works as a rectangular window function (also Tukey window)}, where values below a minimum density are fully transparent and values above a maximum density are fully opaque. We add two more controlers to create a smooth transition between the minimum and maximum density values. The implementation is \textbf{done with conditionals} to detect the different zones and apply the corresponding formula.
 
 \subsection{Beer-Lambert law implementaiton}
-\textbf{Step size opacity independence is archieved with Beer-Lambert law} $T=e^{-\sigma \cdot d}$ where $T$ is transmittance, $\sigma$ is extinction coefficient and $d$ is distance (step size). Sigma is $\sigma = uTFOpacity * (1.0/d)$, the $d$ terms cancel out. The opacity becomes independent of step size and only depends on uTFOpacity.
+\textbf{Step size opacity independence is archieved with Beer-Lambert law \cite{mayerhofer2020bouguer}} $T=e^{-\sigma \cdot d}$ where $T$ is transmittance, $\sigma$ is extinction coefficient and $d$ is distance (step size). Sigma is $\sigma = uTFOpacity * (1.0/d)$, the $d$ terms cancel out. The opacity becomes independent of step size and only depends on uTFOpacity.
 
 \begin{figure}[htbp]
     \centering
@@ -143,18 +143,21 @@ The \textbf{transfer function} \texttt{transfer\_function\_sigma(float density, 
     \label{fig:normalized-step}
 \end{figure}
  
+\subsection{Light Position}
+
+We assume scene has a unique light source. Additionally, light intensity does not diminish with distance for simplicity. The light position is provided as a uniform variable to the fragment shader. For soft shadows (minimum of two light sources), we \textbf{generate points in a disc} from which we will calculate the light contribution. The disc is generated in the plane \textbf{orthogonal to the light-to-fragment direction}, with a radius controlled by the UI. This method simulates an area light source, producing softer shadows by averaging the contributions from multiple sample points on the disc.
 
 \subsection{Color Accumulation}
 
-Color accumulation is performed in \texttt{accumulate\_color\_and\_opacity(vec3 p\_in, vec3 p\_out, float step\_size)} using front-to-back ray marching. The ray is sampled uniformly from the near intersection point $p_{\text{in}}$ to the far intersection point $p_{\text{out}}$. At each step, the volume density is converted to an extinction coefficient $\sigma$ via the transfer function.
+Color accumulation is performed in \texttt{accumulate\_color\_and\_opacity(vec3 p\_in, vec3 p\_out, float step\_size)} using front-to-back ray marching. The \textbf{ray is sampled uniformly from the near intersection point $p_{\text{in}}$ to the far intersection point $p_{\text{out}}$.} At each step, the volume density is converted to an extinction coefficient $\sigma$ via the transfer function.
 
-Opacity is computed using the Beer-Lambert law over the current step length $d$:
+\textbf{Opacity is computed using the Beer-Lambert law over the current step length $d$}:
 
 \begin{equation}
 \alpha = 1 - \exp(-\sigma \cdot d)
 \end{equation}
 
-If the sample opacity exceeds a small threshold, gradients are evaluated to estimate the local normal, and Phong lighting is applied using \texttt{computeLighting}. The lighting model combines ambient, diffuse, and specular terms:
+If the sample opacity exceeds a small threshold, \textbf{gradients are evaluated to estimate the local normal, and Phong lighting} \cite{phong1975illumination} is applied using \texttt{computeLighting}. The lighting model combines ambient, diffuse, and specular terms:
 \begin{equation}
 \mathbf{C}_{\text{sample}} =
 \mathbf{C}_{\text{ambient}} +
@@ -164,9 +167,9 @@ If the sample opacity exceeds a small threshold, gradients are evaluated to esti
 
 with standard Phong definitions for each component. The shininess parameter $\alpha$ is controlled through the UI (light radius).
 
-To account for light absorption between the current sample position and the light source, the shaded color is multiplied by a transmittance term computed along the shadow ray using \texttt{accumulate\_opacity}. This secondary ray march calculates the step size based on the light direction. For optimization reasons we do not reduce the step size by half when calculating shadows (becomes unnecessary expensive for non noticeable improvements).
+To account for light absorption between the current sample position and the light source, the \textbf{shaded color is multiplied by a transmittance term computed along the shadow ray using \texttt{accumulate\_opacity}}. This secondary ray march calculates the step size based on the light direction. For optimization reasons we do not reduce the step size by half when calculating shadows (becomes unnecessary expensive for non noticeable improvements).
 
-Color and opacity are accumulated using \textbf{premultiplied alpha compositing} in a front-to-back manner:
+Color and opacity are accumulated using \textbf{premultiplied alpha compositing in a front-to-back manner like in \cite{10.1145/78964.78965} and \cite{levoy1988display}:}
 \begin{align}
 \mathbf{C}_{\text{acc}} &\leftarrow
 \mathbf{C}_{\text{acc}} + (1 - \alpha_{\text{acc}})
@@ -181,7 +184,7 @@ For efficiency, \textbf{early ray termination} is applied: once the accumulated 
 
 % todo show images where we dont use step size independent opacity and the artifacts that appear
 
-\subsection{Gradient Computation for Lighting}
+\subsection{Gradient Computation}
 We have tried \textbf{two methods to compute the gradients} \ref{fig:gradient}, both with advantages and disadvantages. The \textbf{first method uses density values}. This means we do not take the TFs into account. This is perfect for voxels in the margins so they \textbf{can show normals even if the TF returns maximum opacity in a rectangular window}. This gives the best results for most cases. \textbf{Hollow objects will have inverted normals if looked from the inside}. If TF removes bones and mussels to only leave skin, we will not be able to to illuminate it with the current diffuse lightning since normal directions will point outwards as expected. The \textbf{second approach is to use opacity values} from the TF. We solve the iluminaiton of hole objects but \textbf{we loose density information} when calculating the gradient.
 
 \begin{figure}[htbp]
@@ -226,7 +229,7 @@ Additional problems to normal calculations: \textbf{If using  density, we need t
 % - Fresnel mathematical model
 % - Implementation details
 % - show render results on two datasets
-Using the Fresnel effect, we can highlight the silhouette of dense parts of the volume. The classical Schlick approximation is
+Using the Fresnel effect, we can \textbf{highlight the silhouette of dense parts} of the volume. The classical Schlick approximation is
 
 \begin{equation}
 F(\theta) = F_0 + (1 - F_0)(1 - \cos\theta)^u
@@ -238,13 +241,20 @@ where $F_0$ is the base reflectance at normal incidence, $\theta$ is the angle b
 	ext{rim} = \bigl(1 - |\mathbf{v} \cdot \mathbf{n}|\bigr)^{p}, \qquad p = 6.0
 \end{equation}
 
-To keep the effect only on semi-opaque regions we gate it with the accumulated opacity using a smoothstep mask: $w = \text{smoothstep}(0.3,\,0.7,\,\alpha)\,\text{rim}$. This emphasizes edges (grazing angles) while avoiding over-brightening fully transparent or fully opaque areas \ref{fig:fresnel-function}. Figure~\ref{fig:highlightDensity} shows the effect, and Fig.~\ref{fig:smooth-function} illustrates the masking window.
+To keep the effect only on semi-opaque regions \textbf{we gate it with the accumulated opacity using a smoothstep mask}: $w = \text{smoothstep}(0.3,\,0.7,\,\alpha)\,\text{rim}$. This emphasizes edges (grazing angles) while avoiding over-brightening fully transparent or fully opaque areas \ref{fig:fresnel-function}. Figure~\ref{fig:highlightDensity} shows the effect, and Fig.~\ref{fig:smooth-function} illustrates the masking window.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\columnwidth]{Figures/highlightDense.png}
-    \caption{Silhouette highlighting using the Fresnel effect to emphasize dense regions of the volume.}
+    \includegraphics[width=\columnwidth]{Figures/highlightDense3.png}
+    \caption{Silhouette highlighting using the Fresnel effect to emphasize dense regions of the volume. Rendered with a single light behind the model.}
     \label{fig:highlightDensity}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{Figures/invasiveFresnel3.png}
+    \caption{Comparison of volume rendering with and without smoothstep masking of the Fresnel effect. The top image shows excessive brightening in non-dense areas without masking, while the bottom image uses smoothstep to limit the effect to highly dense regions, resulting in a more visually appealing highlight.}
+    \label{fig:highlightDensity-comparison}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -263,7 +273,47 @@ To keep the effect only on semi-opaque regions we gate it with the accumulated o
 \end{figure}
 
 \section{Performance}
+
+
 % I will talk about how gpus create warps. each warp can compute 32 fragments in parallel. a gpu like gtx3080 has around 8704 cores. so 8704/32 = 272 warps can be computed in parallel. An image has 1920*1080 = 2073600 pixels. so 2073600/272 = 7617 warps are needed to compute the whole image. each warp takes multiple cycles to compute the whole raymarching. The importance of early ray termination and empty space skipping is to free warps as soon as possible to compute more warps in the same time. If a warp takes too long, the gpu will be underutilized.
+\subsection{GPU usage and limitations}
+GPUs achieve high parallelism by organizing threads into groups called warps, with \textbf{each warp typically consisting of 32 threads} that execute instructions simultaneously. For example, an NVIDIA RTX 3080 features 8704 CUDA cores, allowing up to 272 warps to run in parallel ($8704/32 = 272$). When rendering a 1920×1080 image (2,073,600 pixels), \textbf{approximately 7617 warps are required to process all fragments} ($2,073,600/272 \approx 7617$). Since each warp may need multiple cycles to complete complex tasks like ray marching, efficient utilization depends on freeing warps quickly. Techniques such as early ray termination and empty space skipping help release warps sooner, enabling the GPU to process more fragments in parallel and avoid underutilization caused by long-running warps.
+
+It is necessary to understand that a \textbf{warp will not finish untill all its threads have finished}. This means that \textbf{if one thread takes a long time to compute, the whole warp will be delayed}. This is why we set a maximum number of steps for the ray marching. Another problem we percieved even though it is not too important for this project is that making a war try to \textbf{access memory in non-coalesced way will make it take much longer to fetch the data}. This happened when calculating the gradient with a large smoothing factor, since each thread in the warp was trying to access different parts of the texture memory. 
+
+% TODO add some data to prove the performance improvements
+\subsection{Early termination}
+As mentioned before, we implement ... early termination techniques to improve performance:
+\begin{itemize}
+    \item \textbf{Opacity thresholding}: In the camera ray or the fragment-to-light rays, if the accumulated opacity exceeds a certain threshold (e.g., 0.95), we terminate the ray marching early since further contributions will be negligible. \textbf{This is the most effective optimization.}
+    \item \textbf{Maximum step limit}: In some cases, we can run into scenarios where rays traverse large empty spaces or low-density regions (mostly if i implemented something wrong). This should prevent crashes but not really optimize performance unless the volume has really high resolution. 
+    \item \textbf{Empty space skipping}: If the ray is traversing outside the volume bounds, we asume the step has exited the volume and terminate the ray marching. This is usually the case when a ray does not reach maximum opacity before exiting the volume. There is an improvement in performance, mostly when we have multiple lights and each light needs to compute a shadow ray. 
+\end{itemize}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Performance impact of early termination techniques. Each row disables one optimization to show its effect on rendering speed (measured in frames per second, FPS). Tested on volume of size 128x128x100 with adaptive step size and 4 light sources. Rendered with a GTX1060 GPU.}
+    \begin{tabular}{l c}
+        \hline
+        \textbf{Configuration} & \textbf{FPS} \\
+        \hline
+        All optimizations enabled & 44 FPS \\
+        Without opacity thresholding & 10 FPS \\
+        Without maximum step limit & 44 FPS \\
+        Without empty space skipping & 21 FPS \\
+        \hline
+    \end{tabular}
+    \label{tab:early-termination}
+\end{table}
+
+
+\section{Conclusions}
+
+% I also have to talk about how the dinamic selection of samples based on the axis resolution is not actually a good idea. Scaling alpha by the step size sounds good in theory but generates too many artifacts in practice. For some reason the normalization does not work as expected, diagonal rays through the cube increase the step size and seem to miss things. I am actually not sure of why it is not working as expected since it sounds great in my paper. The results are that just deciding a constant sampling rate based on the minimum voxel size of the volume works really well and has no artifacts but it can be a bit more costly.
+
+While dynamically selecting the sampling step size based on the axis resolution seems theoretically optimal, in practice it introduces noticeable artifacts. Scaling the opacity by the step size should normalize the results, but diagonal rays traversing the volume often use larger steps and can miss important features, leading to inconsistent rendering. Despite the mathematical justification, the normalization does not behave as expected, especially for non-axis-aligned rays. Ultimately, using a fixed sampling rate determined by the minimum voxel size produces artifact-free images, even though it may be slightly less efficient computationally.
+
+
 
 
 %----------------------------------------------------------
